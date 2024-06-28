@@ -25,27 +25,19 @@ namespace EduzcaServer
 
             #region DATABASE CONNECTION
             builder.Services.AddDbContext<DBContext>(option =>
-                option.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("Controllers"))
+                option.UseSqlite(builder.Configuration.GetConnectionString("SQLiteConnection"), b => b.MigrationsAssembly("Controllers"))
             );
 
+            builder.Services.AddEntityFrameworkNpgsql().AddDbContext<PGContext>(
+                options => options.UseNpgsql(builder.Configuration.GetConnectionString("PGConnection"), b => b.MigrationsAssembly("Controllers"))
+            );
 
             #endregion
 
-            #region INJECTION DEPENDENCY
-
-            #region COURSE
             builder.Services.AddScoped<IAuthService, AuthService>();
-            #endregion
-
-            #region USER
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IUserService, UserService>();
-            #endregion
-
-            #endregion
-
-
-        
+            builder.Services.AddScoped<IMailerService, MailerService>();
 
 
             var app = builder.Build();

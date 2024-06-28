@@ -1,5 +1,4 @@
-﻿using System.Net.Http.Json;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 
 namespace Services
@@ -8,19 +7,17 @@ namespace Services
     {
         private readonly HttpClient httpClient = new();
         private readonly string mailerURL = ReturnMailerUrl();
-        private readonly object credentials = ReturnMailerCredentials();
-        private string mailerToken;
+        private string token = ReturnMailerCredentials();
 
-        public MailerService()
-        {
-            mailerToken = AuthenticateMailer();
-        }
 
         public void SendMail(SendMailDTO options)
         {
             var sendMailURL = mailerURL + "transporter-emails";
+            var emails = options.emails;
 
-            var json = JsonSerializer.Serialize(options);
+            var data = new { token, emails }; 
+
+            var json = JsonSerializer.Serialize(data);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = httpClient.PostAsync(sendMailURL, content).Result;
@@ -32,30 +29,6 @@ namespace Services
         }
 
 
-        public string AuthenticateMailer()
-        {
-            var authURL = mailerURL + "auth/login";
-
-            var json = JsonSerializer.Serialize(credentials);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            var response = httpClient.PostAsync(authURL, content).Result;
-
-            if(!response.IsSuccessStatusCode)
-            {
-                throw new Exception("Autenticação de serviço de email não pode ser realizada. Erro: " + response.Content.ToString());
-            }
-
-            var mailerAuth = response.Content.ReadFromJsonAsync<AuthenticationDTO>().Result;
-
-            if (mailerAuth== null)
-            {
-                throw new Exception("Autenticação de serviço de email não pode ser realizada. Erro (retorno nulo): " + response.Content.ToString());
-            }
-
-            return mailerAuth.accessToken;
-        }
-
         //Fiz desta maneira pra implementar melhoras práticas de retorno de variáveis no futuro pois sei que deixar fixo no código é má prática
         private static string ReturnMailerUrl()
         {
@@ -64,18 +37,14 @@ namespace Services
             return url;
         }
 
-        private static object ReturnMailerCredentials()
+        private static string ReturnMailerCredentials()
         {
-            string email = "admin@gmail.com";
-            string password = "123123123";
+            string token = "Insira seu token válido aqui";
 
-            object credentials = new { email, password };
-
-            return credentials;
+            return token;
         }    
     }
         public interface IMailerService {
-            public string AuthenticateMailer();
             public void SendMail(SendMailDTO options);
         }
 }

@@ -11,6 +11,7 @@ namespace EduzcaServer.Controllers
         private readonly IAuthService _authService = authService;
 
 
+
         #region LOGIN
         [HttpPost("Login")]
         public async Task<ActionResult<UserEntity>> Login(LoginDTO data)

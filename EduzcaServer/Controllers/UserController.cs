@@ -16,7 +16,7 @@ namespace EduzcaServer.Controllers
         {
             try
             {
-              UserEntity userData =  await _userService.Update(user);
+                UserEntity userData =  await _userService.Update(user);
 
                 return Ok(userData);
             }
